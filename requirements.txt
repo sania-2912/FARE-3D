@@ -1,0 +1,25 @@
+
+# Deep learning
+torch
+torchvision
+
+# Medical imaging
+SimpleITK
+nibabel
+
+# Numerical computing
+numpy
+scipy
+pandas
+
+# Image processing and evaluation
+scikit-image
+matplotlib
+
+# Configuration and utilities
+PyYAML
+tqdm
+tensorboard
+
+# Development and testing
+pytest

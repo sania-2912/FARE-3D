@@ -1,0 +1,175 @@
+
+project:
+  name: "FARE-3D"
+  task: "CBCT_to_sCT"
+  seed: 42
+  experiment_name: "fare3d_full"
+
+# --------------------------------
+# Dataset configuration
+# --------------------------------
+data:
+  dataset_name: "SynthRAD2025_Task2"
+
+  root_dir: "/path/to/SynthRAD2025_Task2"
+
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+
+  cbct_subdir: "CBCT"
+  ct_subdir: "CT"
+
+  image_format: "nii.gz"
+
+  target_spacing: null
+
+  patch_size: [64, 128, 128]
+  patch_overlap: 0.5
+  patches_per_volume: 4
+
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+
+# --------------------------------
+# Intensity preprocessing
+# --------------------------------
+intensity:
+  preserve_original_hu: true
+
+  normalization: "global_percentile"
+
+  hu_percentiles: [0.5, 99.5]
+
+  cbct_clip: null
+  ct_clip: null
+
+  save_normalization_parameters: true
+
+# --------------------------------
+# Model configuration
+# --------------------------------
+model:
+  name: "FARE3D"
+
+  spatial_dims: 3
+  input_channels: 1
+  output_channels: 1
+
+  # Stage A: Regression anchor
+  anchor:
+    base_channels: 32
+    channel_multipliers: [1, 2, 4, 8]
+    num_res_blocks: 2
+
+    smooth_field:
+      enabled: true
+      basis_type: "dct"
+      basis_order: [4, 4, 4]
+
+    detail_head:
+      enabled: true
+      high_frequency_only: true
+
+  # Global anatomical conditioning
+  anatomy_encoder:
+    enabled: true
+    architecture: "3d_vit"
+
+    embed_dim: 256
+    depth: 6
+    num_heads: 8
+
+    patch_size: [4, 8, 8]
+    max_tokens: 512
+
+  # Artifact conditioning
+  severity_encoder:
+    enabled: true
+    embed_dim: 128
+
+  # Stage B: Conditional flow-matching refiner
+  refiner:
+    enabled: true
+    architecture: "3d_dit"
+
+    hidden_dim: 256
+    depth: 6
+    num_heads: 8
+
+    time_embedding_dim: 128
+
+    high_frequency_only: true
+    frequency_projection: true
+    projection_kernel_size: 5
+
+    flow_matching:
+      solver: "euler"
+      training_time_distribution: "uniform"
+      inference_steps: 8
+
+# --------------------------------
+# Training configuration
+# --------------------------------
+training:
+  device: "cuda"
+  mixed_precision: "bf16"
+
+  batch_size: 1
+  gradient_accumulation_steps: 4
+
+  optimizer: "adamw"
+  scheduler: "cosine"
+
+  gradient_clip: 1.0
+
+  save_every: 5
+  validate_every: 1
+
+  anchor:
+    epochs: 100
+    learning_rate: 0.0002
+    weight_decay: 0.0001
+
+  refiner:
+    epochs: 100
+    learning_rate: 0.0001
+    weight_decay: 0.0001
+
+# --------------------------------
+# Loss configuration
+# --------------------------------
+loss:
+  anchor_l1: 1.0
+  smooth_field: 0.1
+  edge: 0.1
+
+  high_frequency: 1.0
+  flow_matching: 1.0
+
+  frequency_leakage: 0.1
+
+# --------------------------------
+# Evaluation
+# --------------------------------
+evaluation:
+  metrics:
+    - MAE
+    - RMSE
+    - PSNR
+    - SSIM
+    - LPIPS
+
+  save_predictions: true
+  save_visualizations: true
+
+# --------------------------------
+# Output directories
+# --------------------------------
+output:
+  checkpoint_dir: "checkpoints"
+  log_dir: "logs"
+  experiment_dir: "experiments"
+
+  tensorboard: true

@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Datasets - do not upload medical imaging data
+data/raw/
+data/processed/
+data/splits/
+
+# Model checkpoints
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# Experiment outputs
+experiments/
+logs/
+runs/
+tensorboard/
+
+# Generated results
+predictions/
+visualizations/
+*.nii
+*.nii.gz
+*.mha
+*.mhd
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment variables
+.env
+.env.*
+
+# Temporary files
+*.tmp
+*.log
