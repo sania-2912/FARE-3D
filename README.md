@@ -29,6 +29,8 @@ The framework is designed to:
 
 ## 3. Proposed Architecture
 
+<img width="2880" height="1744" alt="fare3d_merged" src="https://github.com/user-attachments/assets/14826b61-45c1-4799-bc2e-fbbc12101944" />
+
 FARE-3D consists of two main reconstruction stages and two conditioning encoders.
 
 ### Stage A: 3D Regression Anchor
